@@ -1,0 +1,55 @@
+name: Debug Workflow 3
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-job:
+    runs-on: windows-latest
+
+    steps:
+
+      - name: checkout code
+        uses: actions/checkout@v4.1.7
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4.0.1
+        with:
+          dotnet-version: '8.x'
+
+      - name: Build code
+        run: dotnet build --configuration Release
+
+      - name: Publish code
+        run: dotnet publish -c Release --property:PublishDir="$env:RUNNER_TEMP\myapp"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4.3.6
+        with:
+          # Artifact name
+          name: .net-app
+          path: ${{runner.temp}}\myapp
+
+  deploy_job:
+    runs-on: windows-latest
+    needs: build-job
+    env:
+      package-name: .net-app
+      app-name: sampleappgh
+      deployment-slot: production
+      
+    steps:
+      
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: ${{ env.package-name }}
+      
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.app-name }}
+          slot-name: ${{ env.deployment-slot }}
+          package: .
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILES }}
