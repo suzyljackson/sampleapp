@@ -1,0 +1,29 @@
+name: Overwrite Job Variable (fails)
+
+on:
+  workflow_dispatch:
+
+env:
+  WORKFLOW_VAR_1: "Workflow level variable"
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Job-level environment variables
+    env:
+      VAR_1: "Job level variable value"
+
+    steps:
+      - name: Display job-level variable
+        run: |
+          echo "VAR_1: $VAR_1"
+
+      - name: Override VAR_1 at step level
+        env:
+          VAR_1: "Step level variable value" # This will override the job-level VAR_1
+        run: |
+          echo "VAR_1: $VAR_1"
+
+      - name: Show VAR_1 value after step override
+        run: echo "Value of VAR_1 is $VAR_1"
