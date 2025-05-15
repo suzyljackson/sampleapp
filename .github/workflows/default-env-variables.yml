@@ -1,0 +1,54 @@
+name: Default Environment Variables
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Linux-Runner-Job:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }} # Only run if on the main branch
+    
+    steps:
+      - run: env
+        
+# print triggering event name
+
+      - name: Print Event (Runner Environment Variable)
+        run: echo "Trigger event is $GITHUB_EVENT_NAME"
+
+      - name: Print Event (Context Variable)
+        run: echo "Trigger event is ${{ github.event_name }}"
+
+      - name: Conditional for pull requests
+        run: echo "This is being triggered from a pull request!"
+        if: ${{ github.event_name == 'pull_request' }} # Run only for pull requests
+        
+# print home directory
+
+      - name: Print Home Directory (Runner Environment Variable)
+        run: echo "Home directory is $HOME"
+
+      - name: Print Home Directory (Context Variable)
+        run: echo "Home directory is ${{ env.home }}"
+
+  Windows-Runner-Job:
+    runs-on: windows-latest
+    
+    steps:
+      - run: env
+
+# print triggering event name
+
+      - name: Print Event (Runner Environment Variable)
+        run: echo "Trigger event is $env:GITHUB_EVENT_NAME"
+
+      - name: Print Event (Context Variable)
+        run: echo "Trigger event is ${{ github.event_name }}"
+
+# print home directory
+        
+      - name: Print Home Directory (Runner Environment Variable)
+        run: echo "Home directory is $env:USERPROFILE"
+      
+      - name: Print Home Directory (Context Variable)      
+        run: echo "Home directory is ${{ env.userprofile }}"
