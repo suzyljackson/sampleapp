@@ -1,0 +1,38 @@
+name: Display Action Output
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-job:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: checkout code
+        uses: actions/checkout@v4.1.7
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4.0.1
+        with:
+          dotnet-version: '8.x'
+
+      - name: Build code
+        run: dotnet build --configuration Release
+
+      - name: Publish code
+        run: dotnet publish -c Release --property:PublishDir="${{ runner.temp }}\myapp"
+
+      - name: Upload Artifact
+        id: upload-artifact
+        uses: actions/upload-artifact@v4.3.6
+        with:
+          # Artifact name
+          name: .net-app
+          path: ${{ runner.temp }}/myapp
+
+      - name: Display output of upload-artifact
+        run: |
+          Write-Output "The artifact-id is ${{ steps.upload-artifact.outputs.artifact-id }}" 
+          Write-Output "The artifact-url is ${{ steps.upload-artifact.outputs.artifact-url }}"
+        shell: pwsh
